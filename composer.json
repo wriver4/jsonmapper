@@ -8,8 +8,7 @@
     "autoload-dev": {
         "psr-4": {
             "namespacetest\\": "tests/support/namespacetest",
-            "othernamespace\\": "tests/support/othernamespace",
-            "Enums\\": "tests/support/Enums"
+            "othernamespace\\": "tests/support/othernamespace"
         },
         "psr-0": {
             "JsonMapperTest_": "tests/support",
@@ -29,7 +28,7 @@
         "issues": "https://github.com/cweiske/jsonmapper/issues"
     },
     "require":{
-        "php": ">=7.1",
+        "php": ">=8.3",
         "ext-spl": "*",
         "ext-json": "*",
         "ext-pcre": "*",

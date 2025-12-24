@@ -21,6 +21,19 @@ it works automatically by parsing already-existing docblocks.
 
 This library has no dependencies.
 
+**Requirements:**
+
+- PHP 8.3 or higher
+- ext-json
+- ext-pcre
+- ext-reflection
+- ext-spl
+
+**Supported PHP Features:**
+
+- PHP 8.3: Readonly classes, typed constants, union types
+- PHP 8.4: Property hooks, asymmetric visibility
+
 Keywords: deserialization, hydration
 
 __ http://json.org/
@@ -170,13 +183,28 @@ a property in the following order:
    #. If no type could be detected, the plain JSON value is passed
       to the setter method.
 
-#. Class property types (since PHP 7.4)::
+#. Class property types::
 
      public Contact $person;
 
-#. Constructor property promotion types (since PHP 8.0)::
+#. Constructor property promotion types::
 
      public function __construct(protected Contact $person) {}
+
+#. Readonly class properties (since PHP 8.3)::
+
+     readonly class Person {
+         public function __construct(
+             public Contact $contact
+         ) {}
+     }
+
+#. Property hooks (since PHP 8.4)::
+
+     public string $name {
+         get => ucfirst($this->name);
+         set => $this->name = strtolower($value);
+     }
 
 #. ``@var $type`` docblock annotation of class properties::
 
@@ -558,11 +586,68 @@ You may pass additional arguments to the post-mapping callback:
 ============
 Installation
 ============
-Via Composer from Packagist__::
+
+Via Composer (Recommended)
+===========================
+Install from Packagist__::
 
     $ composer require netresearch/jsonmapper
 
 __ https://packagist.org/packages/netresearch/jsonmapper
+
+Manual Installation (Without Composer)
+=======================================
+
+If you cannot use Composer, you can install JsonMapper manually:
+
+1. **Download the source code**
+
+   Download the latest release from the `GitHub releases page`__ or clone the repository::
+
+       $ git clone https://github.com/cweiske/jsonmapper.git
+
+   __ https://github.com/cweiske/jsonmapper/releases
+
+2. **Include the JsonMapper class**
+
+   Add the following to your PHP code to load JsonMapper:
+
+   .. code:: php
+
+       <?php
+       require_once '/path/to/jsonmapper/src/JsonMapper.php';
+       require_once '/path/to/jsonmapper/src/JsonMapper/Exception.php';
+
+       $mapper = new JsonMapper();
+       // Use as normal
+
+3. **Autoloading (Optional)**
+
+   For better organization, set up a simple autoloader:
+
+   .. code:: php
+
+       <?php
+       spl_autoload_register(function ($class) {
+           if (strpos($class, 'JsonMapper') === 0) {
+               $file = '/path/to/jsonmapper/src/' . str_replace('\\', '/', $class) . '.php';
+               if (file_exists($file)) {
+                   require_once $file;
+               }
+           }
+       });
+
+       $mapper = new JsonMapper();
+
+   Replace ``/path/to/jsonmapper`` with the actual path where you extracted JsonMapper.
+
+**System Requirements**
+
+- PHP >= 8.3
+- JSON extension (typically enabled by default)
+- SPL extension (typically enabled by default)
+- PCRE extension (typically enabled by default)
+- Reflection extension (typically enabled by default)
 
 
 ================

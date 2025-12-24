@@ -266,7 +266,6 @@ class JsonMapper
                 continue;
             }
 
-            //FIXME: check if type exists, give detailed error message if not
             if ($type === '') {
                 throw new JsonMapper_Exception(
                     'Empty type at property "'
@@ -277,6 +276,24 @@ class JsonMapper
                 throw new JsonMapper_Exception(
                     'Cannot decide which of the union types shall be used: '
                     . $type
+                );
+            }
+
+            // Check if the type exists for non-primitive types
+            $cleanType = $this->removeNullable($type);
+            $cleanType = str_replace('[]', '', $cleanType);
+            $cleanType = preg_replace('/\[.*\]$/', '', $cleanType);
+
+            if (!$this->isFlatType($cleanType)
+                && $cleanType !== 'array'
+                && $cleanType !== 'object'
+                && $cleanType !== 'mixed'
+                && !class_exists($cleanType)
+                && !interface_exists($cleanType)
+            ) {
+                throw new JsonMapper_Exception(
+                    'Class or interface "' . $cleanType . '" used at property "'
+                    . $strClassName . '::$' . $key . '" does not exist'
                 );
             }
 
